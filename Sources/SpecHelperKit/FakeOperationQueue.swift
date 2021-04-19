@@ -35,7 +35,11 @@ public final class FakeOperationQueue: OperationQueue {
     }
 
     public override func addOperation(_ block: @escaping () -> Void) {
-        addOperation(BlockOperation(block: block))
+        if runSynchronously {
+            block()
+        } else {
+            addOperation(BlockOperation(block: block))
+        }
     }
 
     public override func cancelAllOperations() {
