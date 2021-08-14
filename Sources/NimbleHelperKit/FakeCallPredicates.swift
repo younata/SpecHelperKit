@@ -90,18 +90,6 @@ struct FakeCallPredicate<T> {
     }
 }
 
-enum AssertionResult {
-    case succeeded
-    case failed
-
-    var boolValue: Bool {
-        switch self {
-        case .succeeded: return true
-        case .failed: return false
-        }
-    }
-}
-
 func haveResults(_ results: [AssertionResult]) -> Predicate<[AssertionRecord]> {
     return Predicate { (received: Expression<[AssertionRecord]>) in
         let message = ExpectationMessage.expectedActualValueTo("have results \(results)")
