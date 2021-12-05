@@ -93,8 +93,6 @@ public class StubbedCombineFakeCall<T, U, E: Error>: FakeCall<T> {
 
     public var lastInstance: PassthroughSubject<U, E>? { instances.last }
 
-    public init() {}
-
     public override func reset() {
         super.reset()
         instances = []
