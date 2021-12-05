@@ -1,6 +1,8 @@
 public class FakeCall<T>: CustomStringConvertible {
     public private(set) var calls = [T]()
 
+    public init() {}
+
     public func record(_ arguments: T) {
         calls.append(arguments)
     }
@@ -90,6 +92,8 @@ public class StubbedCombineFakeCall<T, U, E: Error>: FakeCall<T> {
     public private(set) var instances = [PassthroughSubject<U, E>]()
 
     public var lastInstance: PassthroughSubject<U, E>? { instances.last }
+
+    public init() {}
 
     public override func reset() {
         super.reset()
