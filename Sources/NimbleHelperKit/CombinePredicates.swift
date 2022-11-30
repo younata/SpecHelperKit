@@ -3,7 +3,6 @@ import SpecHelperKit
 #if canImport(Combine)
 import Combine
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public func haveMostRecentlyReceived<T: Equatable, E: Error>(value: T) -> Predicate<PublisherHistory<T, E>> {
     return Predicate { (actualExpression: Expression<PublisherHistory<T, E>>) throws -> PredicateResult in
 
@@ -16,7 +15,6 @@ public func haveMostRecentlyReceived<T: Equatable, E: Error>(value: T) -> Predic
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public func haveReceived<T: Equatable, E: Error>(value: T) -> Predicate<PublisherHistory<T, E>> {
     return Predicate { (actualExpression: Expression<PublisherHistory<T, E>>) throws -> PredicateResult in
 
@@ -29,14 +27,12 @@ public func haveReceived<T: Equatable, E: Error>(value: T) -> Predicate<Publishe
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public func haveReceived<T, E: Error>(_ expectations: [PublisherHistoryPredicate<T, E>]) -> Predicate<PublisherHistory<T, E>> {
     let predicates = expectations.map { (expectation: PublisherHistoryPredicate<T, E>) -> Predicate<PublisherHistory<T, E>> in expectation.predicate }
     return satisfyAllOf(predicates)
 }
 
 // This compiles *significantly* faster than doing the same thing as a closure. No idea why.
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public struct PublisherHistoryPredicate<T, E: Error> {
     public let predicate: Predicate<PublisherHistory<T, E>>
     private init(_ predicate: Predicate<PublisherHistory<T, E>>) {
@@ -84,7 +80,6 @@ public struct PublisherHistoryPredicate<T, E: Error> {
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public func haveReceived<T, E: Error>(error: E) -> Predicate<PublisherHistory<T, E>> {
     return Predicate { (actualExpression: Expression<PublisherHistory<T, E>>) throws -> PredicateResult in
         let message = ExpectationMessage.expectedTo("have completed with error \(error)")
@@ -101,7 +96,6 @@ public func haveReceived<T, E: Error>(error: E) -> Predicate<PublisherHistory<T,
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public func beSuccessfullyCompleted<T, E: Error>() -> Predicate<PublisherHistory<T, E>> {
     return Predicate { (actualExpression: Expression<PublisherHistory<T, E>>) throws -> PredicateResult in
         let message = ExpectationMessage.expectedTo("have successfully completed")
@@ -121,7 +115,6 @@ public func beSuccessfullyCompleted<T, E: Error>() -> Predicate<PublisherHistory
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 extension Future {
     public typealias PendingTuple = (future: Future<Output, Failure>, promise: Future<Output, Failure>.Promise)
     public static func pending() -> PendingTuple {

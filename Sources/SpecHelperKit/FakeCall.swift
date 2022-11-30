@@ -87,7 +87,6 @@ public extension StubbedFakeCall where T == Void {
 #if canImport(Combine)
 import Combine
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public class StubbedCombineFakeCall<T, U, E: Error>: FakeCall<T> {
     public private(set) var instances = [PassthroughSubject<U, E>]()
 
@@ -106,7 +105,6 @@ public class StubbedCombineFakeCall<T, U, E: Error>: FakeCall<T> {
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public extension StubbedCombineFakeCall where T == Void {
     func stub() -> AnyPublisher<U, E> {
         return stub(())

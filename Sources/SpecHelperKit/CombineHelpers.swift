@@ -1,7 +1,6 @@
 #if canImport(Combine)
 import Combine
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 public final class PublisherHistory<T, E: Error> {
     public private(set) var values: [T] = []
     private var completion: Subscribers.Completion<E>? = nil
@@ -24,13 +23,7 @@ public final class PublisherHistory<T, E: Error> {
     }
 }
 
-@available(macOS 10.15, iOS 13.0, watchOS 6.0, tvOS 13.0, *)
 extension Publisher {
-    @available(*, obsoleted: 1, renamed: "startRecording")
-    public func history() -> PublisherHistory<Output, Failure> {
-        return startRecording()
-    }
-
     public func startRecording() -> PublisherHistory<Output, Failure> {
         return PublisherHistory(publisher: self.eraseToAnyPublisher())
     }
