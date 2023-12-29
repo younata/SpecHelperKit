@@ -1,27 +1,27 @@
 import Nimble
 import SpecHelperKit
 
-public func beCalled<T>(times: Int) -> Predicate<FakeCall<T>> {
-    return Predicate { (received: Expression<FakeCall<T>>) in
+public func beCalled<T>(times: Int) -> Matcher<FakeCall<T>> {
+    return Matcher { (received: Expression<FakeCall<T>>) in
         let message = ExpectationMessage.expectedTo("be called \(times) time(s)")
 
         guard let fakeCall: FakeCall<T> = try received.evaluate() else {
-            return PredicateResult(status: .fail, message: message.appendedBeNilHint())
+            return MatcherResult(status: .fail, message: message.appendedBeNilHint())
         }
-        return PredicateResult(bool: fakeCall.calls.count == times, message: message.appended(message: "but was published \(fakeCall.calls.count) time(s)"))
+        return MatcherResult(bool: fakeCall.calls.count == times, message: message.appended(message: "but was published \(fakeCall.calls.count) time(s)"))
     }
 }
 
-public func beCalled<T>(_ matchers: [Predicate<T>]) -> Predicate<FakeCall<T>> {
-    return Predicate { (received: Expression<FakeCall<T>>) in
+public func beCalled<T>(_ matchers: [Matcher<T>]) -> Matcher<FakeCall<T>> {
+    return Matcher { (received: Expression<FakeCall<T>>) in
         let message = ExpectationMessage.expectedTo("have calls")
 
         guard let fakeCall: FakeCall<T> = try received.evaluate() else {
-            return PredicateResult(status: .fail, message: message.appendedBeNilHint())
+            return MatcherResult(status: .fail, message: message.appendedBeNilHint())
         }
 
         guard fakeCall.calls.count == matchers.count else {
-            return PredicateResult(status: .fail, message: message.appended(message: "But number of calls did not match"))
+            return MatcherResult(status: .fail, message: message.appended(message: "But number of calls did not match"))
         }
 
         var postfixMessages = [String]()
@@ -47,45 +47,45 @@ public func beCalled<T>(_ matchers: [Predicate<T>]) -> Predicate<FakeCall<T>> {
             )
         }
 
-        return PredicateResult(bool: matches, message: msg)
+        return MatcherResult(bool: matches, message: msg)
     }
 }
 
-public func beCalled<T>(_ expectations: [FakeCallPredicate<T>]) -> Predicate<FakeCall<T>> {
-    let predicates = expectations.map { (expectation: FakeCallPredicate<T>) -> Predicate<FakeCall<T>> in expectation.predicate }
-    return satisfyAllOf(predicates)
+public func beCalled<T>(_ expectations: [FakeCallMatcher<T>]) -> Matcher<FakeCall<T>> {
+    let matchers = expectations.map { (expectation: FakeCallMatcher<T>) -> Matcher<FakeCall<T>> in expectation.matcher }
+    return satisfyAllOf(matchers)
 }
 
 // This compiles *significantly* faster than doing the same thing as a closure. No idea why.
-public struct FakeCallPredicate<T> {
-    let predicate: Predicate<FakeCall<T>>
-    private init(_ predicate: Predicate<FakeCall<T>>) {
-        self.predicate = predicate
+public struct FakeCallMatcher<T> {
+    let matcher: Matcher<FakeCall<T>>
+    private init(_ matcher: Matcher<FakeCall<T>>) {
+        self.matcher = matcher
     }
 
-    public static func expect<U>(_ keyPath: KeyPath<T, U>, to matcher: Predicate<U>) -> FakeCallPredicate<T> {
-        return FakeCallPredicate(Predicate { (received: Expression<FakeCall<T>>) -> PredicateResult in
+    public static func expect<U>(_ keyPath: KeyPath<T, U>, to matcher: Matcher<U>) -> FakeCallMatcher<T> {
+        return FakeCallMatcher(Matcher { (received: Expression<FakeCall<T>>) -> MatcherResult in
             guard let fakeCall = try received.evaluate(), let value: U = fakeCall.calls.last?[keyPath: keyPath] else {
-                return PredicateResult(status: .fail, message: ExpectationMessage.expectedTo("Be called").appendedBeNilHint())
+                return MatcherResult(status: .fail, message: ExpectationMessage.expectedTo("Be called").appendedBeNilHint())
             }
             let expression: Expression<U> = Expression(expression: { value }, location: received.location)
             let matcherResult = try matcher.satisfies(expression)
 
             let message = matcherResult.message.wrappedExpectation(before: "Have been called (\(keyPath))", after: "On the most recent call, but got \(value)")
-            return PredicateResult(status: matcherResult.status, message: message)
+            return MatcherResult(status: matcherResult.status, message: message)
         })
     }
 
-    public static func expect<U>(_ closure: @escaping (T) -> U?, to matcher: Predicate<U>) -> FakeCallPredicate<T> {
-        return FakeCallPredicate(Predicate { (received: Expression<FakeCall<T>>) -> PredicateResult in
+    public static func expect<U>(_ closure: @escaping (T) -> U?, to matcher: Matcher<U>) -> FakeCallMatcher<T> {
+        return FakeCallMatcher(Matcher { (received: Expression<FakeCall<T>>) -> MatcherResult in
             guard let fakeCall = try received.evaluate(), let lastCall: T = fakeCall.calls.last, let value = closure(lastCall) else {
-                return PredicateResult(status: .fail, message: ExpectationMessage.expectedTo("Be called").appendedBeNilHint())
+                return MatcherResult(status: .fail, message: ExpectationMessage.expectedTo("Be called").appendedBeNilHint())
             }
             let expression: Expression<U> = Expression(expression: { value }, location: received.location)
             let matcherResult = try matcher.satisfies(expression)
 
             let message = matcherResult.message.wrappedExpectation(before: "Have been called (closure)", after: "On the most recent call, but got \(String(describing: value))")
-            return PredicateResult(status: matcherResult.status, message: message)
+            return MatcherResult(status: matcherResult.status, message: message)
         })
     }
 }
